@@ -130,7 +130,8 @@ public class AuthService {
         System.out.println(cache.entrySet());
     }
 
-    public Boolean makeAdmin(String userid, String authorization) {
+    public Boolean makeAdmin(HashMap<String,String> map, String authorization) {
+        String userid = map.get("userid");
         String token = authorization.substring("Bearer " .length());
         if(Boolean.parseBoolean(cache.get(token))){
             userRepo.editAdmin(userid);

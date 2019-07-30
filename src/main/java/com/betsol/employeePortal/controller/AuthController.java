@@ -82,9 +82,9 @@ public class AuthController {
     }
 
     @PatchMapping("/editUser")
-    public ResponseEntity makeAdmin(@RequestHeader String authorization,@RequestBody String userid){
+    public ResponseEntity makeAdmin(@RequestHeader String authorization,@RequestBody HashMap<String,String> body){
         try {
-            Boolean result = authService.makeAdmin(userid,authorization);
+            Boolean result = authService.makeAdmin(body,authorization);
 
             if(result){
                 return new ResponseEntity<>(HttpStatus.OK);
