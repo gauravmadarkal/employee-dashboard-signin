@@ -11,4 +11,7 @@ public interface UserRepo extends CrudRepository<User,String> {
 
     @Query(value = "select * from users u where u.email=:email",nativeQuery = true)
     User findByEmailId(@Param("email") String email);
+
+    @Query(value = "update users u set u.isadmin=1 where u.userid=:userid",nativeQuery = true)
+    void editAdmin( @Param("userid") String userid);
 }

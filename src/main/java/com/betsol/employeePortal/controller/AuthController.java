@@ -1,63 +1,47 @@
 package com.betsol.employeePortal.controller;
 
 
+import com.betsol.employeePortal.model.User;
 import com.betsol.employeePortal.service.AuthService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.sql.SQLException;
-import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
+
 
 @RestController
+@RequestMapping("/api")
+@CrossOrigin
 public class AuthController {
 
     @Autowired
     private AuthService authService;
     final static Logger logger = Logger.getLogger(AuthController.class);
 
-
-    @GetMapping("/login")
-    public ResponseEntity<?> login(HttpServletRequest request, HttpServletResponse response)
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody User body)
     {
-        try{
-            authService.loginService(request,response);
-            return new ResponseEntity<>(HttpStatus.OK);
-        }
-        catch (Exception e){
-            logger.error("login failed");
-            return new ResponseEntity<>(HttpStatus.BAD_GATEWAY);
-        }
-
-    }
-
-    @GetMapping("/success" )
-    public  ResponseEntity<?> onRedirect(HttpServletRequest request, HttpServletResponse response){
+        System.out.println(body);
         try {
             logger.info("Redirected Successfully");
-            return authService.onRedirection(request, response);
+            return authService.onRedirection(body);
         }
         catch (Exception e){
             logger.error("redirection failed");
-            return  new ResponseEntity<>(HttpStatus.BAD_GATEWAY);
+            return  new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+
     }
 
     @GetMapping("/validate")
-    public ResponseEntity<?> validateToken(@RequestHeader String authorization, @RequestHeader String userid) {
+    public ResponseEntity<?> validateToken(@RequestHeader String authorization) {
         try {
-            Boolean result = authService.validateToken(authorization, userid);
+            Boolean result = authService.validateToken(authorization);
             Map<String, Boolean> map = new HashMap<>();
             map.put("isAdmin", result);
             if (result == null) {
@@ -96,4 +80,35 @@ public class AuthController {
         logger.info("printing cache");
         authService.printAll();
     }
+
+    @PatchMapping("/editUser")
+    public ResponseEntity makeAdmin(@RequestHeader String authorization,@RequestBody String userid){
+        try {
+            Boolean result = authService.makeAdmin(userid,authorization);
+
+            if(result){
+                return new ResponseEntity<>(HttpStatus.OK);
+            }
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }catch (Exception e){
+            e.printStackTrace();
+            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/getAllUsers")
+    public ResponseEntity<?> getallusers(@RequestHeader String authorization){
+        try {
+            Iterable<User> users = authService.getAllUsers(authorization);
+
+            if(users!=null){
+                return new ResponseEntity<Iterable<User>>(users,HttpStatus.OK);
+            }
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }catch (Exception e){
+            e.printStackTrace();
+            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }
