@@ -74,6 +74,7 @@ public class AuthService {
             logger.info("user failed to get added to DB");
         }
         cache.put(hashedToken, String.valueOf(newuser.isAdmin()));
+        map.put("userId", newuser.getUserId());
         map.put("isAdmin", newuser.isAdmin());
         map.put("userName", newuser.getDisplayName());
         responseHeaders.add("Authorization", "Bearer " + hashedToken);
